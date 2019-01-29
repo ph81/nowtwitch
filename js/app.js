@@ -1,95 +1,100 @@
-$(document).ready(function() {
-  
-  var users = ["freecodecamp", "bobross", "annemunition", "AustenMarie", "highdistortion", "noopkat", "smashstudios", "tooshi", "ninja"];
 
-  var baseurl = "https://wind-bow.gomix.me/twitch-api/";
+const users = ["freecodecamp", "bobross", "annemunition", "AustenMarie", "highdistortion", "noopkat", "smashstudios", "tooshi", "ninja"];
 
-  var twitch_url = "https://www.twitch.tv/";
+const baseurl = "https://api.twitch.tv/kraken/";
 
-  var userLogo, userProfile, userFollowers, userStatus, userActivity, userUrl;
+const twitch_url = "https://www.twitch.tv/";
 
-  var html = " ";
+const client_id = "fodj684do5v5hrk5j51nhkg6exdoph";
 
-  users.forEach(function(user) {
+let userLogo, userProfile, userFollowers, userStatus, userActivity, userUrl;
 
-    //calling api
-    //getting stream status by user
-    var apiurl = "https://wind-bow.gomix.me/twitch-api/" + "streams/" + user + "?callback=?";
+let html = " ";
 
-    //getting user info
-    $.getJSON(apiurl, function(json) {
+users.forEach(user => {
 
-        //if user is streaming live
-        if (json.stream != null) { 
+  //calling api
+  //getting stream status by user
+  let apiurl = "https://api.twitch.tv/kraken/" + "streams/" + user + "?client_id=" + client_id;
+  //console.log(apiurl);
 
-          //console.log(user + " online");
+  //getting user info
 
-          userLogo = json.stream.channel.logo;
-          userProfile = json.stream.channel.display_name;
-          userFollowers = json.stream.channel.followers;
-          userStatus = 1;
-          userActivity = json.stream.channel.status;
-          userUrl = twitch_url + userProfile;
+  fetch(apiurl).then(response => {
+    return response.json();
+  }).then(data => {
+    //console.log(data.stream.channel.display_name);
+    //if user is streaming live
+    if (data.stream != null) {
 
-          //console.log(userLogo + " " + userProfile + " " +userFollowers+ " " +userStatus + " " + userActivity);
+      console.log(user + " online");
 
-          html += "'<tr><th scope='row'>"
+      userLogo = data.stream.channel.logo;
+      userProfile = data.stream.channel.display_name;
+      userFollowers = data.stream.channel.followers;
+      userStatus = 1;
+      userActivity = data.stream.channel.status;
+      userUrl = twitch_url + userProfile;
 
-          html += "<img src='" + userLogo + "'></th>";
-            
-          html += "<td><a href='" + userUrl + "' target='_blank'>" + userProfile + "</a></td>";
+      //console.log(userLogo + " " + userProfile + " " +userFollowers+ " " +userStatus + " " + userActivity);
 
-          html += "<td><span class='online'>Live!</span></td>";
+      html += "'<tr><th scope='row'>"
 
-          html += "<td>" + userActivity + "</td>";
+      html += "<img src='" + userLogo + "'></th>";
 
-          html += "<td>" + userFollowers + "</td></tr>";
-            
+      html += "<td><a href='" + userUrl + "' target='_blank'>" + userProfile + "</a></td>";
 
-          $("table tbody").html(html);
+      html += "<td><span class='online'>Live!</span></td>";
 
-          
-        }
-        else {
-           //if the user isn't streaming right now, getting the info from the channel
+      html += "<td>" + userActivity + "</td>";
 
-          var channelurl = baseurl + "channels/" + user + "?callback=?";
-
-          //console.log(channelurl);
-
-          $.getJSON(channelurl, function(json) {
-
-            userLogo = json.logo;
-            userProfile = json.display_name;
-            userFollowers = json.followers;
-            userStatus = 0;
-            userActivity = json.status;
+      html += "<td>" + userFollowers + "</td></tr>";
 
 
-            html += "'<tr><th scope='row'>"
+      $("table tbody").html(html);
 
-            html += "<img src='" + userLogo + "'></th>";
-              
-            html += "<td><a href='" + userUrl + "' target='_blank'>" + userProfile + "</a></td>";
-  
-            html += "<td><span class='offline'>Offline</span></td>";
-  
-            html += "<td>" + userActivity + "</td>";
-  
-            html += "<td>" + userFollowers + "</td></tr>";
 
-            $("table tbody").html(html);
- 
+    }
+    else {
+      //if the user isn't streaming right now, getting the info from the channel
 
-          });
+      let channelurl = baseurl + "channels/" + user + "?client_id=" + client_id;
 
-          
-        }
+      console.log(channelurl);
 
-     });
+      fetch(channelurl).then(response => {
+        return response.json();
+      }).then(data => {
+        //console.log(data);
 
-     
+        userLogo = data.logo;
+        userProfile = data.display_name;
+        userFollowers = data.followers;
+        userStatus = 0;
+        userActivity = data.status;
+        userUrl = twitch_url + userProfile;
 
+        html += "'<tr><th scope='row'>"
+
+        html += "<img src='" + userLogo + "'></th>";
+
+        html += "<td><a href='" + userUrl + "' target='_blank'>" + userProfile + "</a></td>";
+
+        html += "<td><span class='offline'>Offline</span></td>";
+
+        html += "<td>" + userActivity + "</td>";
+
+        html += "<td>" + userFollowers + "</td></tr>";
+
+        $("table tbody").html(html);
+      }).catch(err => {
+        console.log(err);
+      });
+
+    }
+
+  }).catch(err => {
+    console.log(err);
   });
 
 });
